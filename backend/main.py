@@ -1,8 +1,23 @@
 from fastapi import FastAPI
 from pydantic import BaseModel
+from fastapi.middleware.cors import CORSMiddleware
 
 # Initialize the FastAPI app
 app = FastAPI(title="My Agent API")
+
+origins = [
+    # In production, you would restrict this to your Streamlit app's domain
+    "https://your-streamlit-app-name.streamlit.app",
+    "*" # For development, the wildcard allows all origins.
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"], # Allows all methods (GET, POST, etc.)
+    allow_headers=["*"], # Allows all headers
+)
 
 # Define the data model for the incoming request using Pydantic
 # This ensures the data sent from Streamlit is in the correct format

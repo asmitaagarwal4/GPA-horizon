@@ -12,7 +12,8 @@ st.set_page_config(
 st.title("Streamlit Frontend for FastAPI")
 st.write("This app sends a request to a FastAPI backend.")
 
-FASTAPI_BACKEND_URL = st.secrets["api"]["backend_url"]
+FASTAPI_BACKEND_BASE = st.secrets["api"]["backend_url"]
+
 
 # --- User Input ---
 st.subheader("Send a Name to the Backend")
@@ -29,7 +30,7 @@ if st.button("Send to Backend"):
                 # The `json` parameter contains the data we want to send,
                 # matching the Pydantic model in FastAPI.
                 response = requests.post(
-                    FASTAPI_BACKEND_URL, 
+                    f"{FASTAPI_BACKEND_BASE}/greet", 
                     json={"name": user_name}
                 )
 
