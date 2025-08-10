@@ -12,8 +12,7 @@ st.set_page_config(
 st.title("Streamlit Frontend for FastAPI")
 st.write("This app sends a request to a FastAPI backend.")
 
-
-FASTAPI_BACKEND_URL = "http://127.0.0.1:8000/greet"
+FASTAPI_BACKEND_URL = st.secrets["api"]["backend_url"]
 
 # --- User Input ---
 st.subheader("Send a Name to the Backend")
