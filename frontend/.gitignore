@@ -1,0 +1,32 @@
+# ===============================================================
+# .gitignore for Streamlit Frontend
+# Location: my-langchain-app/frontend/.gitignore
+# ===============================================================
+
+# --- Virtual Environment ---
+# Ignore the virtual environment folder. This is specific to your
+# machine and can be very large.
+venv/
+.venv/
+env/
+.env/
+
+# --- Python & Package Caches ---
+# Ignore Python bytecode files and cache folders.
+__pycache__/
+*.pyc
+
+# --- Streamlit Specific ---
+# Ignore the folder Streamlit uses for caching and configuration.
+.streamlit/
+
+# --- IDE / Editor Configuration ---
+# Ignore configuration files from popular editors like VSCode.
+.vscode/
+.idea/
+
+# --- Operating System Files ---
+# Ignore system-specific files like those on macOS.
+.DS_Store
+
+

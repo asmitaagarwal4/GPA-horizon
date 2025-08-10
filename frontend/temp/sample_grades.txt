@@ -1,0 +1,7 @@
+
+    Student Grade Report
+    Course Code: CS101, Grade: A, Credits: 3
+    Course Code: MTH203, Grade: S, Credits: 4
+    Course Code: PHY102, Grade: B, Credits: 3
+    Final CGPA: 9.10
+    

@@ -1,0 +1,2 @@
+# Python 3.11.8
+streamlit == 1.47.1

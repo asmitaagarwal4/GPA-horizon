@@ -1,0 +1,42 @@
+# ===============================================================
+# .gitignore for FastAPI Backend
+# Location: my-langchain-app/backend/.gitignore
+# ===============================================================
+
+# --- Virtual Environment ---
+# Ignore the virtual environment folder.
+venv/
+.venv/
+env/
+.env/
+
+# --- Environment Variables (CRITICAL) ---
+# NEVER commit your .env files. They contain secret API keys
+# and other sensitive credentials.
+.env
+*.env
+
+# --- Python & Package Caches ---
+# Ignore Python bytecode files and cache folders.
+__pycache__/
+*.pyc
+
+# --- Log Files ---
+# Ignore log files that might be generated during development.
+*.log
+logs/
+
+# --- Local Database Files ---
+# If you use a local SQLite database for testing, ignore it.
+*.sqlite3
+*.db
+
+# --- IDE / Editor Configuration ---
+# Ignore configuration files from popular editors like VSCode.
+.vscode/
+.idea/
+
+# --- Operating System Files ---
+# Ignore system-specific files like those on macOS.
+.DS_Store
+
