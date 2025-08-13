@@ -1,72 +1,107 @@
-# GPA-horizon
+# GPA Horizon
 
-![Screenshot 2025-04-06 023656](https://github.com/user-attachments/assets/0710f42c-6b9c-4bba-bf72-1323df6b1a61)
+An intelligent assistant for parsing grade transcripts, validating CGPA, and conducting what‑if analyses. It is especially useful for CGPA forecasting, evaluating grade‑improvement exam options, and informing broader academic decisions. Institution‑agnostic by design, it works with any university via a customizable grade‑to‑point map.
 
+## Major features
 
-## ✅ Daily Task Checklist
+1) Upload a grade transcript PDF and calculate CGPA automatically
+- Frontend lets you upload a PDF transcript.
+- Backend extracts courses, credits, and grades and computes CGPA.
 
-- [x] **Day 1:** Planning  
-  - Finalize features  
-  - Define data flow  
-  - Create architecture diagram  
-  - Set up GitHub repo(s)
+2) Custom grade-to-point map (works with any college scheme)
+- Edit the grade-to-point mapping (e.g., A+=10, A=9, …) to match your institution.
+- Validate the extracted CGPA against your custom map.
 
-- [x] **Day 2:** Frontend Setup  
-  - Create React app with Vite  
-  - Set up Tailwind CSS + shadcn/ui  
-  - Define layout, basic routing & components
+3) Add, try, and change course grades to recalculate CGPA
+- Add new courses one at a time (code, credits, grade).
+- Edit visible course rows and instantly recalculate CGPA.
+- Search and paginate through extracted courses.
 
-- [x] **Day 3:** Backend Setup  
-  - Initialize Flask project  
-  - Create a sample API route and test locally
+## How it works
 
-- [x] **Day 4:** Database Setup  
-  - Set up PostgreSQL schema  
-  - Connect DB to Flask  
-  - Test with basic CRUD
+- Streamlit frontend uploads the PDF and calls FastAPI endpoints.
+- The backend uses a LangChain pipeline (Google Gemini via langchain-google-genai) to extract structured data from the PDF, or
+- A validation utility computes weighted CGPA from courses and the current grade map and compares it to the extracted CGPA.
 
-- [ ] **Day 5:** Frontend Development  
-  - Build input form (CSV or manual entries)  
-  - Add dynamic fields for grade entries
+## Tech stack and tools
 
-- [ ] **Day 6:** API Integration  
-  - Integrate Gemini API in Flask  
-  - Test API response with mock data
+- Frontend: Streamlit (Python), requests, session state, pagination UI.
+- Backend: FastAPI, Uvicorn, Pydantic v2 models, CORS.
+- PDF handling: PyMuPDF (fitz) when using the LLM extraction.
+- LLM pipeline: LangChain + Google Gemini (gemini-1.5-flash) with structured output parsing.
 
-- [ ] **Day 7:** Frontend–Backend Connection  
-  - Use `axios`/`fetch` in React to call Flask API  
-  - Send user input and receive response
+### LangChain focus
 
-- [ ] **Day 8:** LocalStorage Logic  
-  - Save temp CSV/text data in browser localStorage  
-  - Prepare data to be sent to backend
+The pipeline (create_full_chain) prompts Gemini to:
+- Read the transcript text
+- Extract a list of courses (course_code, grade, credits)
+- Propose/normalize a grade-to-point map
+- Provide an extracted CGPA
 
-- [ ] **Day 9:** CSV Processing  
-  - Parse CSV in Flask backend  
-  - Compute GPA from grades  
-  - Return JSON result to frontend
+The app then:
+- Computes CGPA from the extracted courses and map
+- Validates against the extracted CGPA
+- Surfaces any mismatch and lets you correct the map or course data
 
-- [ ] **Day 10:** Database Integration  
-  - Save parsed results into PostgreSQL  
-  - Ensure retrieval and update logic works
+In development, set USE_MOCK=true to skip the LLM and use deterministic sample data.
 
-- [ ] **Day 11:** Watson Add-on (Optional)  
-  - Add IBM Watson API if needed  
-  - Use for text classification or analysis
+## API endpoints
 
-- [ ] **Day 12:** UI Polish  
-  - Improve UX, add loading/error states  
-  - Refine responsiveness & theme
+- POST /process-gradesheet/
+	- Body: multipart/form-data with file (PDF)
+	- Response: { status, message, extracted_cgpa, calculated_cgpa, grade_point_map, extracted_courses }
 
-- [ ] **Day 13:** Testing & QA  
-  - End-to-end tests  
-  - Handle edge cases and failed API calls
+- POST /validate-grade-point-map/
+	- Body (JSON): { grade_map: Dict[str, float], courses: List[Course], extracted_cgpa?: number }
+	- Response: { status, message, calculated_cgpa, extracted_cgpa }
 
-- [ ] **Day 14:** Deployment  
-  - Deploy frontend and backend on Render  
-  - Connect PostgreSQL cloud instance
+- GET /recalculate-cgpa/
+	- Body (JSON): { grade_map: Dict[str, float], courses: List[Course] }
+	- Response: { calculated_cgpa }
+	- Note: Uses a GET with JSON body for simplicity; may change to POST later.
 
-- [ ] **Day 15:** Final Touch & Docs  
-  - Complete README with instructions  
-  - Clean and organize code  
-  - (Optional) Record short demo video
+## Quick start
+
+Prereqs: Python 3.11+
+
+Backend (PowerShell)
+```
+cd backend
+python -m venv venv
+./venv/Scripts/Activate.ps1
+pip install -r requirements.txt
+# Optional: use mock to avoid LLM costs
+$env:USE_MOCK = "true"
+uvicorn main:app --reload
+```
+
+Frontend (PowerShell)
+```
+cd frontend
+python -m venv venv
+./venv/Scripts/Activate.ps1
+pip install -r requirements.txt
+
+# Configure Streamlit secret for backend base URL
+# .streamlit/secrets.toml
+# [api]
+# backend_url = "http://127.0.0.1:8000"
+
+streamlit run main.py
+```
+
+To use Gemini extraction (optional):
+- Set GOOGLE_API_KEY in the backend environment
+- Ensure quotas are available (429 errors indicate rate limits)
+
+## CGPA calculation
+
+- Weighted average of grade points by credits
+- Requires that each course’s grade exists in the grade-to-point map
+- Result rounded to 2 decimals
+
+## Notes
+
+- PDF quality matters; text-based PDFs work best.
+- USE_MOCK provides a consistent 26-course sample for local testing.
+- If you hit Gemini rate limits (429), switch USE_MOCK on or add billing/quota.
