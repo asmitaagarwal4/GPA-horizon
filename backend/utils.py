@@ -1,7 +1,6 @@
 import pymupdf as fitz
 from typing import List, Dict
-# --- IMPORT ---
-# We import the Pydantic models we defined in models.py
+
 from models import ExtractedGradeInfo
 
 def read_pdf_content(pdf_path: str) -> str:
