@@ -40,3 +40,4 @@ logs/
 # Ignore system-specific files like those on macOS.
 .DS_Store
 
+temp_uploads/

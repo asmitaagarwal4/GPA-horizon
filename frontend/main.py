@@ -2,18 +2,13 @@ import streamlit as st
 import requests
 import os
 
-# --- Configuration ---
-# Set the title and icon of your Streamlit app
+
 st.set_page_config(
     page_title="GPA Horizon",
     page_icon="🎓",
     layout="centered"
 )
 
-# --- Backend URL ---
-# Use Streamlit Secrets to get the base URL for the backend.
-# This is the secure and recommended way to handle URLs and keys.
-# It falls back to a local URL if the secret is not set (for local development).
 BASE_URL = st.secrets["api"]["backend_url"]
 BACKEND_URL = f"{BASE_URL}/process-gradesheet/"
 
@@ -38,9 +33,7 @@ uploaded_file = st.file_uploader(
 
 # --- Logic to handle the file upload and API call ---
 if uploaded_file is not None:
-    # Display a button to trigger the processing
     if st.button("Analyze Grade Sheet"):
-        # Show a spinner while the backend is working
         with st.spinner("Uploading file and processing with the AI... Please wait."):
             try:
                 # --- Prepare the file for the POST request ---
@@ -64,7 +57,7 @@ if uploaded_file is not None:
                     st.json(json_response)
                     
                     # You can also access specific parts of the JSON
-                    if json_response.get("status") == "SUCCESS":
+                    if json_response.get("status") == True:
                         st.metric("Validated CGPA", f"{json_response.get('calculated_cgpa', 'N/A'):.2f}")
                         st.write("Courses Found:")
                         st.dataframe(json_response.get('extracted_courses', []))
