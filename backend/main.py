@@ -1,43 +1,52 @@
-from fastapi import FastAPI
-from pydantic import BaseModel
+import os
+import uuid
+from fastapi import FastAPI, UploadFile, File, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from dotenv import load_dotenv
 
-# Initialize the FastAPI app
-app = FastAPI(title="My Agent API")
+load_dotenv()
 
-origins = [
-    # In production, you would restrict this to your Streamlit app's domain
-    "https://your-streamlit-app-name.streamlit.app",
-    "*" # For development, the wildcard allows all origins.
-]
+from chain import full_chain
 
+# FastAPI Application Setup
+app = FastAPI(title="GPA Horizon Backend")
+
+# CORS Middleware
+origins = ["*"]
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
     allow_credentials=True,
-    allow_methods=["*"], # Allows all methods (GET, POST, etc.)
-    allow_headers=["*"], # Allows all headers
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
-# Define the data model for the incoming request using Pydantic
-# This ensures the data sent from Streamlit is in the correct format
-class QueryRequest(BaseModel):
-    name: str
+TEMP_DIR = "temp_uploads"
+os.makedirs(TEMP_DIR, exist_ok=True)
 
-# Define a simple endpoint at the URL path "/greet"
-# It only accepts POST requests
-@app.post("/greet")
-async def greet_user(request: QueryRequest):
+@app.post("/process-gradesheet/")
+async def process_gradesheet_endpoint(file: UploadFile = File(...)):
     """
-    Receives a name and returns a personalized greeting.
-    This is where your LangChain agent logic would go.
+    Receives a PDF file, saves it temporarily, runs the full LangChain pipeline,
+    and returns the structured result.
     """
-    user_name = request.name
-    
-    # In a real app, you would call your LangChain agent here:
-    # response_text = agent.run(user_name)
-    
-    # For this example, we'll just create a simple greeting
-    response_text = f"Hello, {user_name}! It's great to see you. This response came from the FastAPI backend."
-    
-    return {"message": response_text}
+    if not os.getenv("GOOGLE_API_KEY"):
+        raise HTTPException(status_code=500, detail="GOOGLE_API_KEY not found on the server.")
+
+    temp_filename = f"{uuid.uuid4()}.pdf"
+    temp_file_path = os.path.join(TEMP_DIR, temp_filename)
+
+    try:
+        with open(temp_file_path, "wb") as f:
+            while chunk := await file.read(1024):
+                f.write(chunk)
+
+        result = full_chain.invoke(temp_file_path)
+        return result
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"An error occurred in the pipeline: {str(e)}")
+
+    finally:
+        if os.path.exists(temp_file_path):
+            os.remove(temp_file_path)
