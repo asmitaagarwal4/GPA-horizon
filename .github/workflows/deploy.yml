@@ -31,7 +31,7 @@ jobs:
       - name: "DEB: Print App Name"
         shell: bash
         run: |
-          echo "::notice::Heroku app name: ${{ secrets.HEROKU_APP_NAME }}"
+          echo "::notice::Heroku app name: ${{ vars.HEROKU_APP_NAME }}"
           echo "::notice::If this appears masked, store the app name in a repository variable instead of a secret."
 
       - name: "DEBUG: Print App Name"
@@ -42,6 +42,6 @@ jobs:
         uses: akhileshns/heroku-deploy@v3.13.15
         with:
           heroku_api_key: ${{ secrets.HEROKU_API_KEY }}
-          heroku_app_name: ${{ secrets.HEROKU_APP_NAME }}
+          heroku_app_name: ${{ vars.HEROKU_APP_NAME }}
           heroku_email: ${{ secrets.HEROKU_EMAIL }}
           appdir: "backend"
