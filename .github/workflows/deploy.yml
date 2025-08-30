@@ -28,6 +28,10 @@ jobs:
           fi
           echo "::notice::Heroku secrets are present. Proceeding to deploy."
 
+      - name: "DEBUG: Print App Name"
+        run: |
+          echo "App Name Value: [${{ secrets.HEROKU_APP_NAME }}]"
+
       - name: Deploy to Heroku
         uses: akhileshns/heroku-deploy@v3.13.15
         with:
