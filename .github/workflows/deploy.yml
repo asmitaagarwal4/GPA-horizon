@@ -28,6 +28,12 @@ jobs:
           fi
           echo "::notice::Heroku secrets are present. Proceeding to deploy."
 
+      - name: "DEB: Print App Name"
+        shell: bash
+        run: |
+          echo "::notice::Heroku app name: ${{ secrets.HEROKU_APP_NAME }}"
+          echo "::notice::If this appears masked, store the app name in a repository variable instead of a secret."
+
       - name: "DEBUG: Print App Name"
         run: |
           echo "App Name Value: [${{ secrets.HEROKU_APP_NAME }}]"
