@@ -28,20 +28,12 @@ jobs:
           fi
           echo "::notice::Heroku secrets are present. Proceeding to deploy."
 
-      - name: "DEB: Print App Name"
-        shell: bash
+      - uses: actions/checkout@v2
+      - name: Install Heroku CLI # <- IMPORTANT!!! Make sure the cli is installed before using the action
         run: |
-          echo "::notice::Heroku app name: ${{ vars.HEROKU_APP_NAME }}"
-          echo "::notice::If this appears masked, store the app name in a repository variable instead of a secret."
-
-      - name: "DEBUG: Print App Name"
-        run: |
-          echo "App Name Value: [${{ secrets.HEROKU_APP_NAME }}]"
-
-      - name: Deploy to Heroku
-        uses: akhileshns/heroku-deploy@v3.13.15
+          curl https://cli-assets.heroku.com/install.sh | sh 
+      - uses: akhileshns/heroku-deploy@v3.14.15 # This is the action
         with:
-          heroku_api_key: ${{ secrets.HEROKU_API_KEY }}
-          heroku_app_name: ${{ vars.HEROKU_APP_NAME }}
-          heroku_email: ${{ secrets.HEROKU_EMAIL }}
-          appdir: "backend"
+          heroku_api_key: ${{secrets.HEROKU_API_KEY}}
+          heroku_app_name: "gpa-horizon" #Must be unique in Heroku
+          heroku_email: "asmitaagarwal4@gmail.com"
