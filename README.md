@@ -99,9 +99,3 @@ To use Gemini extraction (optional):
 - Weighted average of grade points by credits
 - Requires that each course’s grade exists in the grade-to-point map
 - Result rounded to 2 decimals
-
-## Notes
-
-- PDF quality matters; text-based PDFs work best.
-- USE_MOCK provides a consistent 26-course sample for local testing.
-- If you hit Gemini rate limits (429), switch USE_MOCK on or add billing/quota.
