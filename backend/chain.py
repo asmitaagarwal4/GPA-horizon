@@ -14,7 +14,7 @@ from utils import read_pdf_content, extract_grades_list, validate_cgpa
 
 def create_full_chain():
     llm = ChatGoogleGenerativeAI(
-        model="gemini-1.5-flash",
+        model="gemini-2.5-flash",
         temperature=0,
         google_api_key=os.getenv("GOOGLE_API_KEY")
     )
@@ -41,7 +41,7 @@ def create_full_chain():
     map_prompt = ChatPromptTemplate.from_template(
         """
         You are an expert academic system. Based on this list of unique grades, create a JSON dictionary mapping each grade to its standard 10-point scale value.
-        - Standard 'letter' grades are S=10, A=9, B=8, C=7, D=6, E=5, F=0 , P=-1.
+        - Standard 'letter' grades are S=10, A=9, B=8, C=7, D=6, E=5, F=0 , P=10.
         - Standard 'plus/minus' grades are A+=10, A=9, A-=8.5, B+=8, B=7.5, B-=7, C+=6.5, C=6, F=0.
         - Infer which system is being used.
 
@@ -62,15 +62,16 @@ def create_full_chain():
         {
             "document_text": RunnableLambda(read_pdf_content),
             "format_instructions": lambda x: extract_parser.get_format_instructions(),
-        } | RunnableLambda(
+        } 
+        |RunnableLambda(
             lambda x: {"extracted_info": chain_one.invoke(x)}
-        ) | RunnablePassthrough.assign(
+        )   | RunnablePassthrough.assign(
             grades_list= lambda x: extract_grades_list(x['extracted_info'])
-        ) | RunnablePassthrough.assign(
+        )  | RunnablePassthrough.assign(
             grade_map=({"grades_list": lambda x: x['grades_list'], "format_instructions": lambda x: map_parser.get_format_instructions()}) | chain_two
-        ) | RunnablePassthrough.assign(
+        )  | RunnablePassthrough.assign(
             validation_result=RunnableLambda(validate_cgpa)
-        ) | RunnableLambda(
+        )   | debug_print("After validation") | RunnableLambda(
             lambda x: {
                 "status": x['validation_result']['is_correct'] , 
                 "message": x['validation_result']['reason'] , 
@@ -86,5 +87,7 @@ def create_full_chain():
 
 
 
-# result = full_chain.invoke("W:/codes/GPA-horizon/backend/temp_upload/pdf1.pdf")
-# print(result)
+    # result = full_chain.invoke("W:/codes/GPA-horizon/backend/temp_uploads/pdf1.pdf")
+    # print(result)
+
+# create_full_chain()

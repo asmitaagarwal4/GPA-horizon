@@ -40,7 +40,7 @@ if uploaded_file is not None:
                 # The 'files' parameter in requests expects a dictionary where the key ('file')
                 # matches the parameter name in your FastAPI endpoint (def process_gradesheet(file: UploadFile = File(...)))
                 files = {
-                    "file": (uploaded_file.name, uploaded_file.getvalue(), "application/pdf")
+                    "pdf_file": (uploaded_file.name, uploaded_file.getvalue(), "application/pdf")
                 }
 
                 # --- Make the API call to the backend ---
